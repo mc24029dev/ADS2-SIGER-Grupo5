@@ -1,7 +1,11 @@
 package API.SIGER.service;
 
-import org.springframework.stereotype.Service;
+import API.SIGER.DTO.EventoResponse;
 
-@Service
-public class EventoService {
+import java.util.List;
+
+public interface EventoService {
+
+    List<EventoResponse> listar();
 }
+
