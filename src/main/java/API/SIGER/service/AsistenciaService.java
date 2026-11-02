@@ -1,7 +1,5 @@
 package API.SIGER.service;
 
-import org.springframework.stereotype.Service;
-
-@Service
-public class AsistenciaService {
+public interface AsistenciaService {
 }
+

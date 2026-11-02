@@ -1,7 +1,17 @@
 package API.SIGER.service;
 
-import org.springframework.stereotype.Service;
+import API.SIGER.DTO.ReservacionRequest;
+import API.SIGER.DTO.ReservacionResponse;
 
-@Service
-public class ReservacionService {
+public interface ReservacionService {
+
+    /**
+     * Reserva un cupo en un evento y genera el código único de la reservación.
+     */
+    ReservacionResponse reservar(ReservacionRequest request);
+
+    /**
+     * Cancela una reservación y libera el cupo del evento.
+     */
+    ReservacionResponse cancelar(Integer idReservacion);
 }
