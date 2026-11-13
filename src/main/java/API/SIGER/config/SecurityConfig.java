@@ -1,4 +1,4 @@
-package API.SIGER.controller.config;
+package API.SIGER.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,13 +34,13 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(basic -> basic.authenticationEntryPoint((request, response, ex) -> {
                     response.setStatus(401);
-                    response.setContentType("application/json");
-                    response.getWriter().write("{\"error\":\"Credenciales inválidas o ausentes\"}");
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"mensaje\":\"Credenciales inválidas o ausentes\"}");
                 }))
                 .exceptionHandling(ex -> ex.accessDeniedHandler((request, response, e) -> {
                     response.setStatus(403);
-                    response.setContentType("application/json");
-                    response.getWriter().write("{\"error\":\"No tienes permiso para esta operación\"}");
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"mensaje\":\"No tienes permiso para esta operación\"}");
                 }));
 
         return http.build();

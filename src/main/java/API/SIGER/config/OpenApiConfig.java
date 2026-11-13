@@ -1,4 +1,4 @@
-package API.SIGER.controller.config;
+package API.SIGER.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
