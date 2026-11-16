@@ -2,6 +2,7 @@ package API.SIGER.service.impl;
 
 import API.SIGER.DTO.ReservacionRequest;
 import API.SIGER.DTO.ReservacionResponse;
+import API.SIGER.event.NotificacionEvent;
 import API.SIGER.exception.RecursoNoEncontradoException;
 import API.SIGER.exception.ReglaNegocioException;
 import API.SIGER.persistence.entity.Evento;
@@ -9,11 +10,13 @@ import API.SIGER.persistence.entity.Participante;
 import API.SIGER.persistence.entity.Reservacion;
 import API.SIGER.persistence.enums.EstadoEvento;
 import API.SIGER.persistence.enums.EstadoReservacion;
+import API.SIGER.persistence.enums.TipoNotificacion;
 import API.SIGER.repository.EventoRepository;
 import API.SIGER.repository.ParticipanteRepository;
 import API.SIGER.repository.ReservacionRepository;
 import API.SIGER.service.ReservacionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,7 @@ public class ReservacionServiceImpl implements ReservacionService {
     private final EventoRepository eventoRepository;
     private final ParticipanteRepository participanteRepository;
     private final ReservacionRepository reservacionRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     // Todo ocurre en una sola transacción: si algo falla, no se guarda la
     // reservación ni se descuenta el cupo.
@@ -68,6 +72,10 @@ public class ReservacionServiceImpl implements ReservacionService {
         // 4. Se descuenta el cupo (se guarda al finalizar la transacción).
         evento.setCupoDisponible(evento.getCupoDisponible() - 1);
 
+        // 5. Se publica el evento "reservación confirmada". El correo sale después de quela transacción se guarde (ver NotificacionListener).
+        publicarNotificacion(participante, evento, reservacion.getCodigoReservacion(),
+                TipoNotificacion.CONFIRMACION);
+
         return ReservacionResponse.desde(reservacion);
     }
 
@@ -92,7 +100,22 @@ public class ReservacionServiceImpl implements ReservacionService {
         reservacion.setEstado(EstadoReservacion.Cancelada);
         evento.setCupoDisponible(evento.getCupoDisponible() + 1);
 
+        publicarNotificacion(reservacion.getParticipante(), evento, reservacion.getCodigoReservacion(),
+                TipoNotificacion.CANCELACION);
+
         return ReservacionResponse.desde(reservacion);
+    }
+
+    private void publicarNotificacion(Participante participante, Evento evento,
+                                      String codigo, TipoNotificacion tipo) {
+        eventPublisher.publishEvent(new NotificacionEvent(
+                participante.getIdUsuario(),
+                participante.getNombres(),
+                participante.getEmail(),
+                tipo,
+                evento.getNombre(),
+                evento.getFecha(),
+                codigo));
     }
 
     // Ejemplo: RES-2026-3F9A1C2B
