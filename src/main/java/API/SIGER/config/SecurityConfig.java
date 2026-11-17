@@ -25,7 +25,8 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.PATCH, "/reservaciones/*/cancelar").hasRole("PARTICIPANTE")
                             .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                             .requestMatchers("/eventos/*/asistencias/**").hasRole("ORGANIZADOR")
-                            // .requestMatchers("/reportes/**").hasAnyRole("ADMINISTRADOR", "ORGANIZADOR")
+                            .requestMatchers("/reportes/usuarios").hasRole("ADMINISTRADOR")
+                            .requestMatchers("/reportes/**").hasAnyRole("ADMINISTRADOR", "ORGANIZADOR")
                             .anyRequest()
                             .authenticated();
                 })
