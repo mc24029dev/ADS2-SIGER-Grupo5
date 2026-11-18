@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -67,10 +68,10 @@ public class AsistenciaServiceImpl implements AsistenciaService {
 
         obtenerEventoDelOrganizador(idEvento, emailOrganizador);
 
-        String filtro = texto.trim().toLowerCase();
+        String filtro = normalizar(texto);
 
         return construirListado(idEvento).stream()
-                .filter(r -> (r.nombres() + " " + r.apellidos() + " " + r.codigoReservacion())
+                .filter(r -> normalizar(r.nombres() + " " + r.apellidos() + " " + r.codigoReservacion())
                         .toLowerCase()
                         .contains(filtro))
                 .toList();
@@ -147,5 +148,13 @@ public class AsistenciaServiceImpl implements AsistenciaService {
                 asistio,
                 asistio ? asistencia.getFechaRegistro() : null
         );
+    }
+
+    // Quita tildes y diéresis, pasa a minúsculas y recorta espacios
+    private String normalizar(String texto) {
+        return Normalizer.normalize(texto, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase()
+                .trim();
     }
 }
