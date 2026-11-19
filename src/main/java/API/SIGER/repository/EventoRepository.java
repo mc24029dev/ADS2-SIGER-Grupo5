@@ -17,4 +17,6 @@ public interface EventoRepository extends JpaRepository<Evento, Integer>, JpaSpe
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select e from Evento e where e.idEvento = :id")
     Optional<Evento> buscarConBloqueo(@Param("id") Integer id);
+
+    boolean existsByUbicacion_IdUbicacion(Integer idUbicacion);
 }

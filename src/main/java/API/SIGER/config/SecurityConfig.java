@@ -21,6 +21,12 @@ public class SecurityConfig {
                     auth
                             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/eventos").authenticated()
+                            .requestMatchers(HttpMethod.POST, "/eventos").hasRole("ORGANIZADOR")
+                            .requestMatchers(HttpMethod.PUT, "/eventos/*").hasRole("ORGANIZADOR")
+                            .requestMatchers(HttpMethod.PATCH, "/eventos/*/estado").hasRole("ORGANIZADOR")
+                            .requestMatchers(HttpMethod.GET, "/ubicaciones", "/ubicaciones/*").authenticated()
+                            .requestMatchers(HttpMethod.DELETE, "/ubicaciones/*").hasRole("ADMINISTRADOR")
+                            .requestMatchers("/ubicaciones/**").hasAnyRole("ADMINISTRADOR", "ORGANIZADOR")
                             .requestMatchers(HttpMethod.POST, "/auth/registro").permitAll()
                             .requestMatchers(HttpMethod.GET, "/auth/me").authenticated()
                             .requestMatchers(HttpMethod.POST, "/reservaciones").hasRole("PARTICIPANTE")
