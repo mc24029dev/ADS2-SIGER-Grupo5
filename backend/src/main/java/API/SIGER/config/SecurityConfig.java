@@ -10,38 +10,53 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> {
                     auth
+                            // PERMITIR EL CATÁLOGO PÚBLICO (Para probar sin login)
+                            .requestMatchers(HttpMethod.GET, "/eventos").permitAll()
+                            
                             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/eventos").authenticated()
+                            
                             .requestMatchers(HttpMethod.POST, "/eventos").hasRole("ORGANIZADOR")
                             .requestMatchers(HttpMethod.PUT, "/eventos/*").hasRole("ORGANIZADOR")
                             .requestMatchers(HttpMethod.PATCH, "/eventos/*/estado").hasRole("ORGANIZADOR")
-                            .requestMatchers(HttpMethod.GET, "/ubicaciones", "/ubicaciones/*").authenticated()
+                            
+                            .requestMatchers(HttpMethod.GET, "/ubicaciones", "/ubicaciones/*").permitAll()
                             .requestMatchers(HttpMethod.DELETE, "/ubicaciones/*").hasRole("ADMINISTRADOR")
                             .requestMatchers("/ubicaciones/**").hasAnyRole("ADMINISTRADOR", "ORGANIZADOR")
+                            
                             .requestMatchers(HttpMethod.POST, "/auth/registro").permitAll()
                             .requestMatchers(HttpMethod.GET, "/auth/me").authenticated()
+                            
                             .requestMatchers(HttpMethod.POST, "/reservaciones").hasRole("PARTICIPANTE")
                             .requestMatchers(HttpMethod.PATCH, "/reservaciones/*/cancelar").hasRole("PARTICIPANTE")
                             .requestMatchers(HttpMethod.GET, "/reservaciones/*/comprobante").hasRole("PARTICIPANTE")
+                            
                             .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                            
                             .requestMatchers("/eventos/*/asistencias/**").hasRole("ORGANIZADOR")
                             .requestMatchers("/reportes/usuarios").hasRole("ADMINISTRADOR")
                             .requestMatchers("/usuarios/**").hasRole("ADMINISTRADOR")
                             .requestMatchers("/reportes/**").hasAnyRole("ADMINISTRADOR", "ORGANIZADOR")
-                            .anyRequest()
-                            .authenticated();
+                            
+                            .anyRequest().authenticated();
                 })
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
+                
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) 
+                
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(basic -> basic.authenticationEntryPoint((request, response, ex) -> {
@@ -56,6 +71,20 @@ public class SecurityConfig {
                 }));
 
         return http.build();
+    }
+
+    // BEAN PARA CONFIGURAR CORS
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true); // Necesario para Basic Auth
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 
     @Bean

@@ -1,0 +1,17 @@
+# Dependencias
+node_modules/
+
+# Archivos de entorno
+.env
+.env.local
+
+# Archivos de compilación
+dist/
+dist-ssr/
+
+# Logs
+*.log
+
+# Editor
+.vscode/
+.idea/
