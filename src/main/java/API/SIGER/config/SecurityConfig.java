@@ -26,7 +26,6 @@ public class SecurityConfig {
                             .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                             .requestMatchers("/eventos/*/asistencias/**").hasRole("ORGANIZADOR")
                             // .requestMatchers("/reportes/**").hasAnyRole("ADMINISTRADOR", "ORGANIZADOR")
-                            .requestMatchers("/organizadores/**").hasRole("ADMINISTRADOR")
                             .anyRequest()
                             .authenticated();
                 })
