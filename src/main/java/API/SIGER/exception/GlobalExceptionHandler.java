@@ -38,5 +38,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> accesoDenegado(AccesoDenegadoException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", ex.getMessage()));
     }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Map<String, String>> usuarioNoEncontrado(UserNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("mensaje", ex.getMessage()));
+    }
 }
 

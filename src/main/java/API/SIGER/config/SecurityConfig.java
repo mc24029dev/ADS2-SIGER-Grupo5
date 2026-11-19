@@ -21,11 +21,16 @@ public class SecurityConfig {
                     auth
                             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/eventos").authenticated()
+                            .requestMatchers(HttpMethod.POST, "/auth/registro").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/auth/me").authenticated()
                             .requestMatchers(HttpMethod.POST, "/reservaciones").hasRole("PARTICIPANTE")
                             .requestMatchers(HttpMethod.PATCH, "/reservaciones/*/cancelar").hasRole("PARTICIPANTE")
+                            .requestMatchers(HttpMethod.GET, "/reservaciones/*/comprobante").hasRole("PARTICIPANTE")
                             .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                             .requestMatchers("/eventos/*/asistencias/**").hasRole("ORGANIZADOR")
-                            // .requestMatchers("/reportes/**").hasAnyRole("ADMINISTRADOR", "ORGANIZADOR")
+                            .requestMatchers("/reportes/usuarios").hasRole("ADMINISTRADOR")
+                            .requestMatchers("/usuarios/**").hasRole("ADMINISTRADOR")
+                            .requestMatchers("/reportes/**").hasAnyRole("ADMINISTRADOR", "ORGANIZADOR")
                             .anyRequest()
                             .authenticated();
                 })
