@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Search, Loader2, Edit2, Plus, Lock } from "lucide-react";
 import api from "../../api/client";
 import ModalEvento from "../../components/ui/ModalEvento";
+import useAuth from "../../hooks/useAuth"; 
 
 export default function GestionEventos() {
+  const { usuario } = useAuth();
   const [eventos, setEventos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [busqueda, setBusqueda] = useState("");
@@ -25,8 +27,25 @@ export default function GestionEventos() {
   };
 
   useEffect(() => {
+    const cargarEventos = async () => {
+      try {
+        setCargando(true);
+        const res = await api.get("/eventos");
+        
+        let eventosAMostrar = res.data;
+        if (usuario.rol === "ORGANIZADOR") {
+          eventosAMostrar = res.data.filter(ev => ev.idOrganizador === usuario.idUsuario);
+        }
+        
+        setEventos(eventosAMostrar);
+      } catch (error) {
+        console.error("Error al cargar eventos", error);
+      } finally {
+        setCargando(false);
+      }
+    };
     cargarEventos();
-  }, []);
+  }, [usuario]);
 
   const handleCambiarEstado = async (id, nuevoEstado) => {
     if (!window.confirm(`¿Estás seguro de cambiar el estado a ${nuevoEstado}?`)) return;

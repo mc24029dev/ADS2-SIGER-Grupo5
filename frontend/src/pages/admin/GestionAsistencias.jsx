@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Search, Loader2, CheckCircle2, UserCheck, QrCode, ClipboardList } from "lucide-react";
 import api from "../../api/client";
+import useAuth from "../../hooks/useAuth";
 
 export default function GestionAsistencias() {
+  const { usuario } = useAuth();
   const [eventos, setEventos] = useState([]);
   const [eventoSeleccionado, setEventoSeleccionado] = useState("");
   
@@ -18,7 +20,13 @@ export default function GestionAsistencias() {
     const cargarEventos = async () => {
       try {
         const res = await api.get("/eventos");
-        setEventos(res.data.filter(e => e.estado !== "Cancelado"));
+        
+        let eventosAMostrar = res.data.filter(e => e.estado !== "Cancelado");
+        if (usuario.rol === "ORGANIZADOR") {
+          eventosAMostrar = eventosAMostrar.filter(ev => ev.idOrganizador === usuario.idUsuario);
+        }
+        
+        setEventos(eventosAMostrar);
       } catch (error) {
         console.error("Error al cargar eventos", error);
       } finally {
@@ -26,7 +34,7 @@ export default function GestionAsistencias() {
       }
     };
     cargarEventos();
-  }, []);
+  }, [usuario]);
 
   const cargarAsistencias = async (idEvento) => {
     try {
