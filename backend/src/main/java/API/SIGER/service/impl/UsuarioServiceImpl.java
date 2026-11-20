@@ -2,12 +2,15 @@ package API.SIGER.service.impl;
 
 import API.SIGER.DTO.Auth.RegistroRequestDTO;
 import API.SIGER.DTO.Auth.UsuarioResponseDTO;
+import API.SIGER.DTO.Auth.UsuarioUpdateRequestDTO;
 import API.SIGER.exception.AutoDesactivacionException;
 import API.SIGER.exception.EmailYaRegistradoException;
+import API.SIGER.exception.ReglaNegocioException;
 import API.SIGER.exception.UsuarioNoEncontradoException;
 import API.SIGER.persistence.entity.Administrador;
 import API.SIGER.persistence.entity.Organizador;
 import API.SIGER.persistence.entity.Usuario;
+import API.SIGER.persistence.enums.Rol;
 import API.SIGER.repository.UsuarioRepository;
 import API.SIGER.service.UsuarioService;
 import lombok.AllArgsConstructor;
@@ -89,5 +92,22 @@ public class UsuarioServiceImpl implements UsuarioService {
                 emailAdministrador, email, nuevo.getRol());
 
         return UsuarioResponseDTO.desde(nuevo);
+    }
+
+    @Override
+    @Transactional
+    public UsuarioResponseDTO actualizarUsuario(Integer idUsuario, UsuarioUpdateRequestDTO request, String emailAdministrador) {
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new UsuarioNoEncontradoException(idUsuario));
+
+        // REGLA DE NEGOCIO: Un admin no puede editar a otro admin
+        if (usuario.getRol() == Rol.ADMINISTRADOR && !usuario.getEmail().equalsIgnoreCase(emailAdministrador)) {
+            throw new ReglaNegocioException("No tienes permiso para editar a otro Administrador");
+        }
+
+        usuario.setNombres(request.nombres().trim());
+        usuario.setApellidos(request.apellidos().trim());
+        
+        return UsuarioResponseDTO.desde(usuario);
     }
 }

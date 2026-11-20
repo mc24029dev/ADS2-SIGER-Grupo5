@@ -71,7 +71,7 @@ export default function ParticipanteLayout() {
         <div className="p-4 border-t border-gray-100">
           <button 
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors font-medium"
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors font-medium cursor-pointer"
           >
             <LogOut size={20} />
             Cerrar Sesión

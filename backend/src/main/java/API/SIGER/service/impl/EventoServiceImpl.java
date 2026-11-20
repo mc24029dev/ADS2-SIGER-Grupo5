@@ -9,7 +9,9 @@ import API.SIGER.exception.ReglaNegocioException;
 import API.SIGER.persistence.entity.Evento;
 import API.SIGER.persistence.entity.Organizador;
 import API.SIGER.persistence.entity.Ubicacion;
+import API.SIGER.persistence.entity.Usuario;
 import API.SIGER.persistence.enums.EstadoEvento;
+import API.SIGER.persistence.enums.Rol;
 import API.SIGER.repository.EventoRepository;
 import API.SIGER.repository.OrganizadorRepository;
 import API.SIGER.repository.UbicacionRepository;
@@ -28,6 +30,7 @@ public class EventoServiceImpl implements EventoService {
     private final EventoRepository eventoRepository;
     private final UbicacionRepository ubicacionRepository;
     private final OrganizadorRepository organizadorRepository;
+    private final API.SIGER.repository.UsuarioRepository usuarioRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -39,9 +42,22 @@ public class EventoServiceImpl implements EventoService {
 
     @Override
     @Transactional
-    public EventoResponse crear(EventoRequestDTO request, String emailOrganizador) {
-        Organizador organizador = organizadorRepository.findByEmail(emailOrganizador)
-                .orElseThrow(() -> new RecursoNoEncontradoException("El organizador no existe"));
+    public EventoResponse crear(EventoRequestDTO request, String emailSolicitante) {
+        Usuario usuario = usuarioRepository.findByEmail(emailSolicitante)
+                .orElseThrow(() -> new RecursoNoEncontradoException("El usuario no existe"));
+
+        Organizador organizador;
+
+        if (usuario.getRol() == Rol.ADMINISTRADOR) {
+            if (request.idOrganizador() == null) {
+                throw new ReglaNegocioException("Como Administrador, debes asignar un Organizador al evento");
+            }
+            organizador = organizadorRepository.findById(request.idOrganizador())
+                    .orElseThrow(() -> new RecursoNoEncontradoException("El organizador seleccionado no existe"));
+        } else {
+            organizador = organizadorRepository.findByEmail(emailSolicitante)
+                    .orElseThrow(() -> new RecursoNoEncontradoException("El organizador no existe"));
+        }
 
         if (!request.fecha().isAfter(LocalDateTime.now())) {
             throw new ReglaNegocioException("La fecha del evento debe ser posterior a la fecha actual");
@@ -62,25 +78,28 @@ public class EventoServiceImpl implements EventoService {
 
     @Override
     @Transactional
-    public EventoResponse actualizar(Integer idEvento, EventoRequestDTO request, String emailOrganizador) {
-        // Se bloquea el evento: no puede cambiar su cupo mientras alguien reserva.
-        Evento evento = obtenerEventoDelOrganizador(idEvento, emailOrganizador);
+    public EventoResponse actualizar(Integer idEvento, EventoRequestDTO request, String emailSolicitante) {
+        Evento evento = obtenerEventoDelSolicitante(idEvento, emailSolicitante);
 
         if (evento.getEstado() == EstadoEvento.Cancelado || evento.getEstado() == EstadoEvento.Finalizado) {
             throw new ReglaNegocioException("No se puede modificar un evento cancelado o finalizado");
         }
 
-        // Cupos ya ocupados = capacidad - cupo disponible. La nueva capacidad no puede ser menor.
         int ocupados = evento.getCapacidadMaxima() - evento.getCupoDisponible();
         if (request.capacidadMaxima() < ocupados) {
-            throw new ReglaNegocioException(
-                    "La capacidad máxima no puede ser menor a los " + ocupados + " cupos ya reservados");
+            throw new ReglaNegocioException("La capacidad máxima no puede ser menor a los " + ocupados + " cupos ya reservados");
         }
 
-        // Cambiar la fecha reprograma el evento.
         boolean cambioFecha = !evento.getFecha().equals(request.fecha());
         if (cambioFecha && !request.fecha().isAfter(LocalDateTime.now())) {
             throw new ReglaNegocioException("La nueva fecha del evento debe ser posterior a la fecha actual");
+        }
+
+        Usuario usuario = usuarioRepository.findByEmail(emailSolicitante).orElseThrow();
+        if (usuario.getRol() == Rol.ADMINISTRADOR && request.idOrganizador() != null) {
+            Organizador nuevoOrganizador = organizadorRepository.findById(request.idOrganizador())
+                    .orElseThrow(() -> new RecursoNoEncontradoException("El organizador seleccionado no existe"));
+            evento.setOrganizador(nuevoOrganizador);
         }
 
         evento.setNombre(request.nombre().trim());
@@ -88,6 +107,7 @@ public class EventoServiceImpl implements EventoService {
         evento.setCapacidadMaxima(request.capacidadMaxima());
         evento.setCupoDisponible(request.capacidadMaxima() - ocupados);
         evento.setUbicacion(obtenerUbicacion(request.idUbicacion()));
+        
         if (cambioFecha) {
             evento.setFecha(request.fecha());
             evento.setEstado(EstadoEvento.Reprogramado);
@@ -99,7 +119,7 @@ public class EventoServiceImpl implements EventoService {
     @Override
     @Transactional
     public EventoResponse cambiarEstado(Integer idEvento, EstadoEvento nuevoEstado, String emailOrganizador) {
-        Evento evento = obtenerEventoDelOrganizador(idEvento, emailOrganizador);
+        Evento evento = obtenerEventoDelSolicitante(idEvento, emailOrganizador);
 
         if (evento.getEstado() == EstadoEvento.Cancelado || evento.getEstado() == EstadoEvento.Finalizado) {
             throw new ReglaNegocioException(
@@ -116,11 +136,14 @@ public class EventoServiceImpl implements EventoService {
 
     // --- Métodos privados ---
 
-    private Evento obtenerEventoDelOrganizador(Integer idEvento, String emailOrganizador) {
+    private Evento obtenerEventoDelSolicitante(Integer idEvento, String emailSolicitante) {
         Evento evento = eventoRepository.buscarConBloqueo(idEvento)
                 .orElseThrow(EventoNoEncontradoException::new);
 
-        if (!evento.getOrganizador().getEmail().equalsIgnoreCase(emailOrganizador)) {
+        Usuario usuario = usuarioRepository.findByEmail(emailSolicitante)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+
+        if (usuario.getRol() != Rol.ADMINISTRADOR && !evento.getOrganizador().getEmail().equalsIgnoreCase(emailSolicitante)) {
             throw new EventoAjenoException();
         }
         return evento;

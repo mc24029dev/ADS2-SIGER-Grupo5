@@ -25,6 +25,9 @@ import AdminLayout from "../components/layout/AdminLayout"
 import DashboardAdmin from "../pages/admin/DashboardAdmin"
 import GestionUsuarios from "../pages/admin/GestionUsuarios"
 import GestionEventos from "../pages/admin/GestionEventos"
+import GestionAsistencias from "../pages/admin/GestionAsistencias";
+import GestionReportes from "../pages/admin/GestionReportes";
+import MiPerfilAdmin from "../pages/admin/MiPerfilAdmin";
 
 export default function AppRoutes() {
   return (
@@ -58,6 +61,9 @@ export default function AppRoutes() {
           <Route index element={<DashboardAdmin />} />
           <Route path="usuarios" element={<GestionUsuarios />} />
           <Route path="eventos" element={<GestionEventos />} />
+          <Route path="asistencias" element={<GestionAsistencias />} />
+          <Route path="reportes" element={<GestionReportes />} /> 
+          <Route path="perfil" element={<MiPerfilAdmin />} />
         </Route>
       </Route>
 
