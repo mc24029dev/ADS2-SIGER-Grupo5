@@ -1,11 +1,12 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import {
   ArrowLeft,
   ArrowRight,
   CalendarCheck,
   Eye,
   EyeOff,
+  LoaderCircle,
   Lock,
   Mail,
   TriangleAlert,
@@ -13,6 +14,9 @@ import {
   UserPlus,
 } from "lucide-react"
 import CampoConIcono from "../../components/ui/CampoConIcono"
+import useAuth from "../../hooks/useAuth"
+import { registrarParticipante } from "../../api/auth"
+import { rutaInicio } from "../../utils/roles"
 
 // Nivel de seguridad: 0 = vacía, 1 = corta, 2 = media, 3 = robusta.
 function nivelDeSeguridad(valor) {
@@ -29,18 +33,64 @@ const FUERZA = {
   3: { texto: "Contraseña robusta", textoClase: "text-primary", barra: "bg-primary" },
 }
 
+function mensajeDeError(err) {
+  if (err.sinConexion) return "No se pudo conectar con el servidor. Intenta de nuevo."
+  return err.message
+}
+
 export default function Registro() {
+
+  const { login } = useAuth()
+  const navigate = useNavigate()
+
   const [contrasena, setContrasena] = useState("")
   const [verContrasena, setVerContrasena] = useState(false)
-  // TEMPORAL (solo para comparar con Stitch): en la fase 2 inicia en false.
-  const [conflicto, setConflicto] = useState(true)
+  
+  const [conflicto, setConflicto] = useState(false)
+  const [error, setError] = useState("")
+  const [cargando, setCargando] = useState(false)
 
   const nivel = nivelDeSeguridad(contrasena)
   const fuerza = FUERZA[nivel]
 
-  const handleSubmit = (e) => {
+  const limpiarAvisos = () => {
+    setConflicto(false)
+    setError("")
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // Fase 2: validación y llamada a la API.
+    if (cargando) return
+    limpiarAvisos()
+
+    const form = new FormData(e.currentTarget)
+    const nombres = form.get("nombres").trim()
+    const apellidos = form.get("apellidos").trim()
+    const email = form.get("correo").trim()
+
+    if (!nombres || !apellidos) {
+      setError("Los nombres y apellidos no pueden estar vacíos.")
+      return
+    }
+
+    setCargando(true)
+    
+    try {
+      await registrarParticipante({ nombres, apellidos, email, contrasena })
+    } catch (err) {
+      if (err.status === 409) setConflicto(true)
+      else setError(mensajeDeError(err))
+      setCargando(false)
+      return
+    }
+
+    // Cuenta creada: inicia sesión con las mismas credenciales.
+    try {
+      const perfil = await login(email, contrasena)
+      navigate(rutaInicio(perfil.rol), { replace: true })
+    } catch {
+      navigate("/login", { replace: true })
+    }
   }
 
   return (
@@ -99,7 +149,17 @@ export default function Registro() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {error && (
+          <div
+            role="alert"
+            className="mb-5 p-3 rounded-r-md rounded-l bg-error-container border-l-4 border-error text-on-error-container text-[13px] flex items-center gap-2 shadow-sm"
+          >
+            <TriangleAlert size={18} aria-hidden="true" className="shrink-0 text-error" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} onChange={limpiarAvisos} className="space-y-4">
           {/* Nombres y apellidos */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <CampoConIcono
@@ -110,6 +170,7 @@ export default function Registro() {
               name="nombres"
               autoComplete="given-name"
               placeholder="Ej. Juan Carlos"
+              maxLength={100}
               required
             />
             <CampoConIcono
@@ -120,6 +181,7 @@ export default function Registro() {
               name="apellidos"
               autoComplete="family-name"
               placeholder="Ej. Pérez López"
+              maxLength={100}
               required
             />
           </div>
@@ -133,6 +195,7 @@ export default function Registro() {
             name="correo"
             autoComplete="email"
             placeholder="usuario@correo.com"
+            maxLength={100}
             required
           />
 
@@ -199,10 +262,16 @@ export default function Registro() {
           <div className="pt-3">
             <button
               type="submit"
-              className="w-full h-12 cursor-pointer bg-primary hover:bg-secondary active:scale-[0.99] text-on-primary text-label-md rounded-lg shadow-md shadow-primary/25 flex items-center justify-center gap-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+              disabled={cargando}
+              className="w-full h-12 cursor-pointer bg-primary hover:bg-secondary active:scale-[0.99] text-on-primary text-label-md rounded-lg shadow-md shadow-primary/25 flex items-center justify-center gap-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 disabled:opacity-90 disabled:cursor-not-allowed"
             >
-              <UserPlus size={20} aria-hidden="true" />
-              <span>Registrarse</span>
+              {cargando ? (
+                <LoaderCircle size={20} aria-hidden="true" className="animate-spin" />
+              ) : (
+                <UserPlus size={20} aria-hidden="true" />
+              )}
+              <span>{cargando ? "Registrando..." : "Registrarse"}</span>
+
             </button>
           </div>
         </form>

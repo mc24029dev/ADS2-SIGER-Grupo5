@@ -13,3 +13,9 @@ export async function obtenerPerfil() {
   const { data } = await api.get("/auth/me")
   return data
 }
+
+// Registro público de participantes (no requiere credenciales).
+export async function registrarParticipante(datos) {
+  const { data } = await api.post("/auth/registro", datos)
+  return data
+}
