@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function EventoCard({ titulo, fecha, lugar, cupos, estado, esPublico = false, onReservar }) {
   const navigate = useNavigate();
+  
   const estaActivo = estado === "Activo";
   const hayCupos = cupos > 0;
   const puedeReservar = estaActivo && hayCupos;
@@ -11,7 +12,7 @@ export default function EventoCard({ titulo, fecha, lugar, cupos, estado, esPubl
     if (esPublico) {
       navigate("/login"); 
     } else if (onReservar) {
-      onReservar();
+      onReservar(); 
     }
   };
 
@@ -54,7 +55,7 @@ export default function EventoCard({ titulo, fecha, lugar, cupos, estado, esPubl
         onClick={handleClick}
         className={`w-full font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 ${
           puedeReservar 
-            ? "bg-[#3B82F6] hover:bg-[#2563EB] text-white" 
+            ? "bg-[#3B82F6] hover:bg-[#2563EB] text-white cursor-pointer" 
             : "bg-gray-100 text-gray-400 cursor-not-allowed"
         }`}
       >

@@ -159,7 +159,7 @@ export default function Contacto() {
             <button 
               type="submit" 
               disabled={enviando}
-              className="w-full bg-[#3B82F6] hover:bg-[#2563EB] disabled:bg-blue-300 text-white font-medium py-3 rounded-lg transition-colors flex justify-center items-center gap-2"
+              className="w-full bg-[#3B82F6] hover:bg-[#2563EB] disabled:bg-blue-300 text-white font-medium py-3 cursor-pointer rounded-lg transition-colors flex justify-center items-center gap-2"
             >
               {enviando ? (
                 <><Loader2 className="animate-spin" size={20} /> Enviando...</>
