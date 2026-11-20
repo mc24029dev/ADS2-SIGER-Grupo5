@@ -31,7 +31,7 @@ export default function CampoConIcono({
 
         <input
           id={id}
-          className={`w-full h-[44px] pl-11 ${
+          className={`w-full h-11 pl-11 ${
             derecha ? "pr-11" : "pr-4"
           } bg-surface-container-lowest text-on-surface placeholder:text-outline text-body-md rounded-lg outline-none shadow-[inset_0_0_0_1px_rgba(226,232,240,1)] transition-all duration-200 focus:shadow-[inset_0_0_0_1.5px_#0058be,0_0_0_3px_rgba(0,88,190,0.15)] disabled:opacity-70 disabled:cursor-not-allowed`}
           {...inputProps}

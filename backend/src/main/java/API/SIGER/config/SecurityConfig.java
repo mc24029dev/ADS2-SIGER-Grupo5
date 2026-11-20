@@ -43,6 +43,8 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.POST, "/reservaciones").hasRole("PARTICIPANTE")
                             .requestMatchers(HttpMethod.PATCH, "/reservaciones/*/cancelar").hasRole("PARTICIPANTE")
                             .requestMatchers(HttpMethod.GET, "/reservaciones/*/comprobante").hasRole("PARTICIPANTE")
+
+                            .requestMatchers(HttpMethod.POST, "/contacto").permitAll()
                             
                             .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                             

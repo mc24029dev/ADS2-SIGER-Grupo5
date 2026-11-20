@@ -2,7 +2,7 @@
 export const RUTA_INICIO_POR_ROL = {
   ADMINISTRADOR: "/admin",
   ORGANIZADOR: "/eventos", // temporal: el panel del organizador aún no existe
-  PARTICIPANTE: "/eventos",
+  PARTICIPANTE: "/participante/eventos",
 }
 
 export function rutaInicio(rol) {
