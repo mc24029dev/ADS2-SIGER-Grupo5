@@ -17,6 +17,7 @@ import EventosPublicos from "../pages/public/EventosPublicos"
 // Participante 
 import ParticipanteLayout from "../components/layout/ParticipanteLayout"
 import CatalogoEventos from "../pages/participante/CatalogoEventos"
+import MisReservaciones from "../pages/participante/MisReservaciones";
 
 // Administrador
 import AdminLayout from "../components/layout/AdminLayout"
@@ -45,6 +46,7 @@ export default function AppRoutes() {
       <Route element={<ProtectedRoute roles={["PARTICIPANTE", "ORGANIZADOR"]} />}>
         <Route element={<ParticipanteLayout />}>
           <Route path="/participante/eventos" element={<CatalogoEventos />} />
+          <Route path="/participante/mis-reservaciones" element={<MisReservaciones />} />
         </Route>
       </Route>
 

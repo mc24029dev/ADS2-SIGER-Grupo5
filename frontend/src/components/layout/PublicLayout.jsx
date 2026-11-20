@@ -1,7 +1,12 @@
 import { Link, Outlet } from "react-router-dom";
-import { Calendar, Lock } from "lucide-react";
+import { Calendar, Lock, LayoutDashboard } from "lucide-react";
+import useAuth from "../../hooks/useAuth"; 
 
 export default function PublicLayout() {
+  const { usuario } = useAuth();
+
+  const panelRuta = usuario?.rol === "ADMINISTRADOR" ? "/admin" : "/participante/eventos";
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-gray-800 font-sans flex flex-col">
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -13,20 +18,31 @@ export default function PublicLayout() {
             <span className="font-bold text-2xl text-gray-900">SIGER</span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+          <nav className="hidden md:flex items-center gap-8 text-lg font-medium text-gray-600">
             <Link to="/" className="hover:text-[#2563EB] transition-colors">Inicio</Link>
             <Link to="/eventos" className="hover:text-[#2563EB] transition-colors">Eventos</Link>
             <Link to="/acerca" className="hover:text-[#2563EB] transition-colors">Nosotros</Link>
-            <Link to="/contacto" className="hover:text-[#2563EB] transition-colors">Contacto</Link>
+      
+            {!usuario && <Link to="/contacto" className="hover:text-[#2563EB] transition-colors">Contacto</Link>}
           </nav>
 
-          <Link 
-            to="/login" 
-            className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-          >
-            <Lock size={16} />
-            Iniciar Sesión
-          </Link>
+          {usuario ? (
+            <Link 
+              to={panelRuta} 
+              className="bg-[#10B981] hover:bg-[#059669] text-white px-6 py-2.5 rounded-lg text-lg font-medium transition-colors flex items-center gap-2 shadow-sm"
+            >
+              <LayoutDashboard size={16} />
+              Mi Panel ({usuario.nombres})
+            </Link>
+          ) : (
+            <Link 
+              to="/login" 
+              className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 py-2.5 rounded-lg text-lg font-medium transition-colors flex items-center gap-2"
+            >
+              <Lock size={16} />
+              Iniciar Sesión
+            </Link>
+          )}
         </div>
       </header>
 
