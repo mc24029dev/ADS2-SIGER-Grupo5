@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { FileText, Download, Calendar, Ticket, Activity, Loader2 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import api from "../../api/client";
+import useAuth from "../../hooks/useAuth";
 
 export default function GestionReportes() {
+  const { usuario } = useAuth();
   const [eventos, setEventos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [descargando, setDescargando] = useState(false);
@@ -26,15 +28,21 @@ export default function GestionReportes() {
     const cargarDatos = async () => {
       try {
         const resE = await api.get("/eventos");
-        setEventos(resE.data);
+        
+        let eventosAMostrar = resE.data;
+        if (usuario.rol === "ORGANIZADOR") {
+          eventosAMostrar = resE.data.filter(ev => ev.idOrganizador === usuario.idUsuario);
+        }
+        
+        setEventos(eventosAMostrar);
 
         let totalReservas = 0;
-        resE.data.forEach(ev => {
+        eventosAMostrar.forEach(ev => {
           totalReservas += (ev.capacidadMaxima - ev.cupoDisponible);
         });
 
         setStats({
-          eventos: resE.data.length,
+          eventos: eventosAMostrar.length,
           reservas: totalReservas,
           asistencia: 87.5 
         });
@@ -45,7 +53,7 @@ export default function GestionReportes() {
       }
     };
     cargarDatos();
-  }, []);
+  }, [usuario]);
 
   const descargarPDF = async (endpoint, nombreArchivo) => {
     try {

@@ -3,6 +3,7 @@ import { Search, Loader2, Edit2, Power, UserPlus } from "lucide-react";
 import api from "../../api/client";
 import useAuth from "../../hooks/useAuth";
 import ModalEditarUsuario from "../../components/ui/ModalEditarUsuario";
+import ModalCrearUsuario from "../../components/ui/ModalCrearUsuario";
 
 export default function GestionUsuarios() {
   const { usuario: usuarioLogueado } = useAuth();
@@ -12,6 +13,7 @@ export default function GestionUsuarios() {
   const [filtroRol, setFiltroRol] = useState("TODOS");
   const [procesandoId, setProcesandoId] = useState(null);
   const [usuarioAEditar, setUsuarioAEditar] = useState(null);
+  const [modalCrearAbierto, setModalCrearAbierto] = useState(false);
 
   const cargarUsuarios = async () => {
     try {
@@ -75,7 +77,10 @@ export default function GestionUsuarios() {
           <h1 className="text-2xl font-bold text-gray-900">Gestión de Usuarios</h1>
           <p className="text-gray-500 text-sm mt-1">Administración de cuentas, asignación de roles y control de accesos.</p>
         </div>
-        <button className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 py-2.5 rounded-lg font-medium flex items-center gap-2 transition-colors shadow-sm cursor-pointer">
+        <button 
+          onClick={() => setModalCrearAbierto(true)}
+          className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 py-2.5 rounded-lg font-medium flex items-center gap-2 transition-colors shadow-sm cursor-pointer"
+        >
           <UserPlus size={18} /> Agregar nuevo usuario
         </button>
       </div>
@@ -188,6 +193,16 @@ export default function GestionUsuarios() {
           onClose={() => setUsuarioAEditar(null)}
           onSuccess={() => {
             setUsuarioAEditar(null);
+            cargarUsuarios();
+          }}
+        />
+      )}
+
+      {modalCrearAbierto && (
+        <ModalCrearUsuario
+          onClose={() => setModalCrearAbierto(false)}
+          onSuccess={() => {
+            setModalCrearAbierto(false);
             cargarUsuarios();
           }}
         />
