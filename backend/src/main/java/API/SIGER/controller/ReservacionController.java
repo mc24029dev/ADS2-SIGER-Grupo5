@@ -6,6 +6,9 @@ import API.SIGER.service.ComprobanteService;
 import API.SIGER.service.ReservacionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +20,11 @@ public class ReservacionController {
 
     private final ReservacionService reservacionService;
     private final ComprobanteService comprobanteService;
+
+    @GetMapping("/mis-reservaciones")
+    public List<ReservacionResponse> listarMisReservaciones(Authentication authentication) {
+    return reservacionService.listarMisReservaciones(authentication.getName());
+}
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

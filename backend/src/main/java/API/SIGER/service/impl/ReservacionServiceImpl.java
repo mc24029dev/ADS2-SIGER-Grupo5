@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Year;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -77,6 +78,14 @@ public class ReservacionServiceImpl implements ReservacionService {
                 TipoNotificacion.CONFIRMACION);
 
         return ReservacionResponse.desde(reservacion);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservacionResponse> listarMisReservaciones(String email) {
+        return reservacionRepository.findByParticipante_EmailOrderByFechaReservacionDesc(email).stream()
+                .map(ReservacionResponse::desde)
+                .toList();
     }
 
     @Override
