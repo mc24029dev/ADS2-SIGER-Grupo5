@@ -4,12 +4,14 @@ import API.SIGER.persistence.entity.Reservacion;
 import API.SIGER.persistence.enums.EstadoReservacion;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record ReservacionResponse(
         Integer idReservacion,
         String codigoReservacion,
         EstadoReservacion estado,
         LocalDate fechaReservacion,
+        LocalDateTime fechaEvento,
         Integer idEvento,
         String nombreEvento,
         Integer cupoDisponible
@@ -20,6 +22,7 @@ public record ReservacionResponse(
                 r.getCodigoReservacion(),
                 r.getEstado(),
                 r.getFechaReservacion(),
+                r.getEvento().getFecha(),
                 r.getEvento().getIdEvento(),
                 r.getEvento().getNombre(),
                 r.getEvento().getCupoDisponible());

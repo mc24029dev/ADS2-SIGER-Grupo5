@@ -1,5 +1,5 @@
 import { Outlet, NavLink, Link, useNavigate } from "react-router-dom";
-import { Calendar, Ticket, LogOut, Bell, Compass } from "lucide-react";
+import { Calendar, Ticket, LogOut, Compass, User } from "lucide-react";
 import useAuth from "../../hooks/useAuth"; 
 
 export default function ParticipanteLayout() {
@@ -17,7 +17,7 @@ export default function ParticipanteLayout() {
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] font-sans">
-      {/* SIDEBAR */}
+
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col justify-between md:flex">
         <div>
           <Link to="/" className="h-16 flex items-center px-6 border-b border-gray-100 hover:bg-gray-50 transition-colors">
@@ -53,6 +53,18 @@ export default function ParticipanteLayout() {
               <Ticket size={20} />
               Mis Reservaciones
             </NavLink>
+
+            <NavLink
+              to="/participante/perfil"
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  isActive ? "bg-blue-50 text-[#2563EB] font-semibold" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }`
+              }
+            >
+              <User size={20} />
+              Mi Perfil
+          </NavLink>
           </nav>
         </div>
 
@@ -74,10 +86,6 @@ export default function ParticipanteLayout() {
           </div>
           
           <div className="flex items-center gap-6">
-            <button className="text-gray-400 hover:text-gray-600 relative">
-              <Bell size={22} />
-              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
             <div className="flex items-center gap-3 border-l border-gray-200 pl-6">
               <div className="text-right hidden sm:block">
                 <p className="text-lg font-semibold text-gray-800">{usuario.nombres} {usuario.apellidos}</p>

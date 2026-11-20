@@ -120,7 +120,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={cargando}
-            className="w-full h-[48px] bg-primary hover:bg-secondary active:scale-[0.99] text-on-primary text-label-md rounded-lg flex items-center justify-center gap-2 transition-all duration-200 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 disabled:opacity-90 disabled:cursor-not-allowed"
+            className="w-full h-[48px] cursor-pointer bg-primary hover:bg-secondary active:scale-[0.99] text-on-primary text-label-md rounded-lg flex items-center justify-center gap-2 transition-all duration-200 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 disabled:opacity-90 disabled:cursor-not-allowed"
           >
             {cargando ? (
               <LoaderCircle size={20} aria-hidden="true" className="animate-spin" />

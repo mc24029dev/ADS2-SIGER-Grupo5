@@ -17,4 +17,5 @@ public interface ReservacionRepository extends JpaRepository<Reservacion, Intege
     Optional<Reservacion> findByCodigoReservacion(String codigoReservacion);
 
     List<Reservacion> findByEvento_IdEventoAndEstado(Integer idEvento, EstadoReservacion estado);
+    List<Reservacion> findByParticipante_EmailOrderByFechaReservacionDesc(String email);
 }

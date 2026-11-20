@@ -23,7 +23,6 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> {
                     auth
-                            // PERMITIR EL CATÁLOGO PÚBLICO (Para probar sin login)
                             .requestMatchers(HttpMethod.GET, "/eventos").permitAll()
                             
                             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -42,6 +41,8 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.POST, "/reservaciones").hasRole("PARTICIPANTE")
                             .requestMatchers(HttpMethod.PATCH, "/reservaciones/*/cancelar").hasRole("PARTICIPANTE")
                             .requestMatchers(HttpMethod.GET, "/reservaciones/*/comprobante").hasRole("PARTICIPANTE")
+
+                            .requestMatchers(HttpMethod.PUT, "/auth/me/perfil", "/auth/me/password").authenticated()
 
                             .requestMatchers(HttpMethod.POST, "/contacto").permitAll()
                             

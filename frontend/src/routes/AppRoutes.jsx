@@ -18,6 +18,7 @@ import EventosPublicos from "../pages/public/EventosPublicos"
 import ParticipanteLayout from "../components/layout/ParticipanteLayout"
 import CatalogoEventos from "../pages/participante/CatalogoEventos"
 import MisReservaciones from "../pages/participante/MisReservaciones";
+import MiPerfil from "../pages/participante/MiPerfil";
 
 // Administrador
 import AdminLayout from "../components/layout/AdminLayout"
@@ -47,6 +48,7 @@ export default function AppRoutes() {
         <Route element={<ParticipanteLayout />}>
           <Route path="/participante/eventos" element={<CatalogoEventos />} />
           <Route path="/participante/mis-reservaciones" element={<MisReservaciones />} />
+          <Route path="/participante/perfil" element={<MiPerfil />} />
         </Route>
       </Route>
 
