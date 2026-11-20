@@ -27,9 +27,9 @@ public class SecurityConfig {
                             
                             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                             
-                            .requestMatchers(HttpMethod.POST, "/eventos").hasRole("ORGANIZADOR")
-                            .requestMatchers(HttpMethod.PUT, "/eventos/*").hasRole("ORGANIZADOR")
-                            .requestMatchers(HttpMethod.PATCH, "/eventos/*/estado").hasRole("ORGANIZADOR")
+                            .requestMatchers(HttpMethod.POST, "/eventos").hasAnyRole("ADMINISTRADOR", "ORGANIZADOR")
+                            .requestMatchers(HttpMethod.PUT, "/eventos/*").hasAnyRole("ADMINISTRADOR", "ORGANIZADOR")
+                            .requestMatchers(HttpMethod.PATCH, "/eventos/*/estado").hasAnyRole("ADMINISTRADOR", "ORGANIZADOR")
                             
                             .requestMatchers(HttpMethod.GET, "/ubicaciones", "/ubicaciones/*").permitAll()
                             .requestMatchers(HttpMethod.DELETE, "/ubicaciones/*").hasRole("ADMINISTRADOR")
@@ -48,7 +48,7 @@ public class SecurityConfig {
                             
                             .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                             
-                            .requestMatchers("/eventos/*/asistencias/**").hasRole("ORGANIZADOR")
+                            .requestMatchers("/eventos/*/asistencias/**").hasAnyRole("ADMINISTRADOR", "ORGANIZADOR")
                             .requestMatchers("/reportes/usuarios").hasRole("ADMINISTRADOR")
                             .requestMatchers("/usuarios/**").hasRole("ADMINISTRADOR")
                             .requestMatchers("/reportes/**").hasAnyRole("ADMINISTRADOR", "ORGANIZADOR")

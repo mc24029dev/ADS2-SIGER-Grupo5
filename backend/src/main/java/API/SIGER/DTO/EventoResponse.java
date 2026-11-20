@@ -13,7 +13,9 @@ public record EventoResponse(
         String sede,
         Integer capacidadMaxima,
         Integer cupoDisponible,
-        EstadoEvento estado
+        EstadoEvento estado,
+        String descripcion,
+        Integer idOrganizador 
 ) {
     public static EventoResponse desde(Evento e) {
         return new EventoResponse(
@@ -24,6 +26,9 @@ public record EventoResponse(
                 e.getUbicacion().getSede(),
                 e.getCapacidadMaxima(),
                 e.getCupoDisponible(),
-                e.getEstado());
+                e.getEstado(),
+                e.getDescripcion(),
+                e.getOrganizador() != null ? e.getOrganizador().getIdUsuario() : null
+        );
     }
 }

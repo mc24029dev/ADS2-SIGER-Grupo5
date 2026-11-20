@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 
 /** Datos que el Organizador puede enviar al crear o modificar un evento. */
 public record EventoRequestDTO(
-
         @NotBlank(message = "El nombre es obligatorio")
         @Size(max = 150, message = "El nombre no debe superar los 150 caracteres")
         String nombre,
@@ -25,6 +24,7 @@ public record EventoRequestDTO(
         Integer capacidadMaxima,
 
         @Size(max = 300, message = "La descripción no debe superar los 300 caracteres")
-        String descripcion
-) {
-}
+        String descripcion,
+
+        Integer idOrganizador 
+) {}

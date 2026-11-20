@@ -6,11 +6,14 @@ import API.SIGER.exception.asistencia.*;
 import API.SIGER.persistence.entity.Asistencia;
 import API.SIGER.persistence.entity.Evento;
 import API.SIGER.persistence.entity.Reservacion;
+import API.SIGER.persistence.entity.Usuario;
 import API.SIGER.persistence.enums.EstadoEvento;
 import API.SIGER.persistence.enums.EstadoReservacion;
+import API.SIGER.persistence.enums.Rol;
 import API.SIGER.repository.AsistenciaRepository;
 import API.SIGER.repository.EventoRepository;
 import API.SIGER.repository.ReservacionRepository;
+import API.SIGER.repository.UsuarioRepository;
 import API.SIGER.service.AsistenciaService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,12 +33,13 @@ public class AsistenciaServiceImpl implements AsistenciaService {
     private final AsistenciaRepository asistenciaRepository;
     private final ReservacionRepository reservacionRepository;
     private final EventoRepository eventoRepository;
+    private final UsuarioRepository usuarioRepository;
 
     @Override
     @Transactional
     public AsistenciaResponseDTO registrarPorCodigo(Integer idEvento, String codigo, String emailOrganizador) {
 
-        Evento evento = obtenerEventoDelOrganizador(idEvento, emailOrganizador);
+        Evento evento = obtenerEventoPermitido(idEvento, emailOrganizador);
 
         Reservacion reservacion = reservacionRepository
                 .findByCodigoReservacion(codigo.trim().toUpperCase())
@@ -47,7 +51,7 @@ public class AsistenciaServiceImpl implements AsistenciaService {
     @Override
     @Transactional
     public AsistenciaResponseDTO registrarPorReservacion(Integer idEvento, Integer idReservacion, String emailOrganizador) {
-        Evento evento = obtenerEventoDelOrganizador(idEvento, emailOrganizador);
+        Evento evento = obtenerEventoPermitido(idEvento, emailOrganizador);
 
         Reservacion reservacion = reservacionRepository.findById(idReservacion)
                 .orElseThrow(ReservacionNoEncontradaException::new);
@@ -58,7 +62,7 @@ public class AsistenciaServiceImpl implements AsistenciaService {
     @Override
     @Transactional(readOnly = true)
     public List<AsistenciaResponseDTO> listarPorEvento(Integer idEvento, String emailOrganizador) {
-        obtenerEventoDelOrganizador(idEvento, emailOrganizador);
+        obtenerEventoPermitido(idEvento, emailOrganizador);
         return construirListado(idEvento);
     }
 
@@ -66,7 +70,7 @@ public class AsistenciaServiceImpl implements AsistenciaService {
     @Transactional(readOnly = true)
     public List<AsistenciaResponseDTO> buscarPorEvento(Integer idEvento, String texto, String emailOrganizador) {
 
-        obtenerEventoDelOrganizador(idEvento, emailOrganizador);
+        obtenerEventoPermitido(idEvento, emailOrganizador);
 
         String filtro = normalizar(texto);
 
@@ -79,12 +83,14 @@ public class AsistenciaServiceImpl implements AsistenciaService {
 
     // Métodos privados
 
-    private Evento obtenerEventoDelOrganizador(Integer idEvento, String emailOrganizador) {
-
+    private Evento obtenerEventoPermitido(Integer idEvento, String emailSolicitante) {
         Evento evento = eventoRepository.findById(idEvento)
                 .orElseThrow(EventoNoEncontradoException::new);
 
-        if (!evento.getOrganizador().getEmail().equalsIgnoreCase(emailOrganizador)) {
+        Usuario usuario = usuarioRepository.findByEmail(emailSolicitante)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+
+        if (usuario.getRol() != Rol.ADMINISTRADOR && !evento.getOrganizador().getEmail().equalsIgnoreCase(emailSolicitante)) {
             throw new AccesoEventoDenegadoException();
         }
         return evento;

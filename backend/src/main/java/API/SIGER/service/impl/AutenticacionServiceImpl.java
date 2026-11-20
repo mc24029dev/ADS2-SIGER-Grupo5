@@ -5,6 +5,7 @@ import API.SIGER.DTO.Auth.PerfilRequestDTO;
 import API.SIGER.DTO.Auth.RegistroRequestDTO;
 import API.SIGER.DTO.Auth.UsuarioResponseDTO;
 import API.SIGER.exception.EmailYaRegistradoException;
+import API.SIGER.exception.ReglaNegocioException;
 import API.SIGER.exception.UserNotFoundException;
 import API.SIGER.persistence.entity.Participante;
 import API.SIGER.persistence.entity.Usuario;
@@ -87,7 +88,7 @@ public class AutenticacionServiceImpl implements AutenticacionService {
                 .orElseThrow(() -> new UserNotFoundException(email));
 
         if (!passwordEncoder.matches(request.contrasenaActual(), usuario.getContrasena())) {
-            throw new RuntimeException("La contraseña actual es incorrecta"); // Puedes usar una excepción personalizada
+            throw new ReglaNegocioException("La contraseña actual es incorrecta"); 
         }
 
         usuario.setContrasena(passwordEncoder.encode(request.nuevaContrasena()));
