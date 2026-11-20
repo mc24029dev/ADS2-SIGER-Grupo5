@@ -6,7 +6,6 @@ import api from "../../api/client";
 export default function CatalogoEventos() {
   const [eventos, setEventos] = useState([]);
   const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState(null);
   const [busqueda, setBusqueda] = useState("");
 
   useEffect(() => {
@@ -16,22 +15,18 @@ export default function CatalogoEventos() {
         const response = await api.get("/eventos");
         setEventos(response.data);
       } catch (err) {
-        setError(err.message);
+        console.error(err);
       } finally {
         setCargando(false);
       }
     };
-
     cargarEventos();
   }, []);
 
   const formatearFecha = (fechaString) => {
     if (!fechaString) return "";
     const fecha = new Date(fechaString);
-    return fecha.toLocaleDateString('es-ES', { 
-      day: '2-digit', month: 'long', year: 'numeric', 
-      hour: '2-digit', minute: '2-digit' 
-    });
+    return fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
 
   const eventosFiltrados = eventos.filter((evento) => 
@@ -46,6 +41,7 @@ export default function CatalogoEventos() {
           <h1 className="text-2xl font-bold text-gray-900">Eventos Disponibles</h1>
           <p className="text-gray-500 text-sm mt-1">Explora las actividades programadas y reserva tus accesos oficiales.</p>
         </div>
+        
         <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
           <input
@@ -53,7 +49,7 @@ export default function CatalogoEventos() {
             placeholder="Buscar por título o lugar..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
           />
         </div>
       </div>
@@ -61,34 +57,24 @@ export default function CatalogoEventos() {
       {cargando && (
         <div className="flex flex-col items-center justify-center py-20 text-[#3B82F6]">
           <Loader2 className="animate-spin mb-4" size={40} />
-          <p className="text-gray-500 font-medium">Cargando eventos desde el servidor...</p>
+          <p className="text-gray-500 font-medium">Cargando catálogo...</p>
         </div>
       )}
 
-      {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg text-center border border-red-100">
-          {error}
-        </div>
-      )}
-
-      {!cargando && !error && (
+      {!cargando && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {eventosFiltrados.length === 0 ? (
-            <div className="col-span-3 text-center py-10">
-              <p className="text-gray-500">No se encontraron eventos que coincidan con tu búsqueda.</p>
-            </div>
-          ) : (
-            eventosFiltrados.map((evento) => (
-              <EventoCard 
-                key={evento.idEvento} 
-                titulo={evento.nombre}
-                fecha={formatearFecha(evento.fecha)}
-                lugar={`${evento.lugar} - ${evento.sede}`}
-                cupos={evento.cupoDisponible}
-                estado={evento.estado}
-              />
-            ))
-          )}
+          {eventosFiltrados.map((evento) => (
+            <EventoCard 
+              key={evento.idEvento} 
+              titulo={evento.nombre}
+              fecha={formatearFecha(evento.fecha)}
+              lugar={`${evento.lugar} - ${evento.sede}`}
+              cupos={evento.cupoDisponible}
+              estado={evento.estado}
+              esPublico={false}
+              onReservar={() => alert("Aquí abriremos el modal de reserva para el evento: " + evento.idEvento)}
+            />
+          ))}
         </div>
       )}
     </div>
