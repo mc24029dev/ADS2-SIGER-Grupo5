@@ -33,9 +33,9 @@ SIGER es una aplicación web desarrollada para automatizar la organización de e
 1. **Configurar variables de entorno:**
    Crea un archivo `.env` en la raíz del proyecto y define las credenciales de la base de datos:
    ```env
-   DB_NAME=siger_db
-   DB_USER=postgres
-   DB_PASSWORD=postgres
+   DB_NAME=siger
+   DB_USER=siger_user
+   DB_PASSWORD=aqui_la_password_que_definas
    ```
 
 2. **Levantar la aplicación:**
@@ -49,7 +49,8 @@ SIGER es una aplicación web desarrollada para automatizar la organización de e
    *   **Documentación API (Swagger):** Abre [http://localhost:3000/siger/api/v1/swagger-ui.html](http://localhost:3000/siger/api/v1/swagger-ui.html)
 
 **Comandos útiles de Docker:**
-*   Para detener los contenedores: `docker compose down`
+*   Para detener los 3 contenedores sin borrar nada: `docker compose stop`
+*   Levantar los contenedores que se pararon: `docker compose start`
 *   Para detener y borrar la base de datos (reinicio limpio): `docker compose down -v`
 
 ---
