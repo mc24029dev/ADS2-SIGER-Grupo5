@@ -1,0 +1,49 @@
+name: siger
+
+services:
+  db:
+    image: postgres:18.2
+    container_name: siger-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:?Define DB_NAME en el archivo .env}
+      POSTGRES_USER: ${DB_USER:?Define DB_USER en el archivo .env}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD en el archivo .env}
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    volumes:
+      - siger_pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: siger-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      MAIL_USER: ${MAIL_USER:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /siger/api/v1
+    container_name: siger-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  siger_pgdata:

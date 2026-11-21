@@ -1,41 +1,24 @@
 ## Ejecutar la app web
 
-1. Clonar el repositorio de GitHub
-   
-3. Una vez dentro del proyecto dirigirse al directorio backend
-   
+Requisitos: Docker y Docker Compose.
+
+1. Copia `.env.example` a `.env` y completa las credenciales.
+2. Levanta todo:
+   ```bash
+   docker compose up -d --build
    ```
-   cd backend
-   ```
-4. Dentro de backend/, copiar .env.example como .env y agregar una clave
-5. Desde backend/ levantar el contenedor ejecutando:
-   ```
-   docker compose up -d
-   ```
-6. Comprobar que esté listo (debe decir healthy):
-   ```
-   docker compose ps
-   ```
-   
-7. Con el contenedor funcionando se debe ejecutar el backend desde backend/:
-   ```
-   ./mvnw spring-boot:run   
-   ```
-8. Para ejecutar el frontend, desde la raiz del proyecto dirigirse a frontend/
-   ```
-   cd frontend
-   ```
-9. Instalar dependencias
-    
-    ```
-    npm install
-    ```
-10. Iniciar el servidor de desarrollo local
-    ```
-    npm run dev
-    ```
-11. Abrir el navegador desde la ruta
-    ```
-    http://localhost:5173/
-    ```
+3. Abre http://localhost:3000
+   (Swagger: http://localhost:3000/siger/api/v1/swagger-ui.html)
+
+Para detener: `docker compose down`
+
+Para detener y borrar la base de datos: `docker compose down -v`
+
+### Desarrollo diario (sin dockerizar la app)
+
+Levanta solo la base de datos:
+```bash
+docker compose up -d db
+```
+Y corre Spring Boot desde el IDE y React con `npm run dev` (puerto 5173).
     
