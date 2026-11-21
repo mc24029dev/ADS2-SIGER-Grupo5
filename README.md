@@ -80,6 +80,3 @@ Si deseas realizar modificaciones al código y ver los cambios en tiempo real:
 *   Irene Guadalupe Leon Madrid
 *   Maria Ines Cruz Henriquez
 *   Carlos Elias Sanchez Villalobos
-*   Irene Guadalupe Leon Madrid
-*   Maria Ines Cruz Henriquez
-*   Carlos Elias Sanchez Villalobos
